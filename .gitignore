@@ -3,6 +3,7 @@ IlluminatedCloud/
 
 src/applications
 src/appMenus
+src/coverage
 src/email
 src/groups
 src/homePageComponents
