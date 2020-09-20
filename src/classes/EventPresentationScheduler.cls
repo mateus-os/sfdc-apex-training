@@ -5,6 +5,8 @@ public virtual class EventPresentationScheduler {
 
     EventRepository repository;
 
+    BusinessHoursCalculator dateCalculator;
+
     List<Account> newAccounts;
 
     List<Event> newEvents;
@@ -12,6 +14,7 @@ public virtual class EventPresentationScheduler {
     public EventPresentationScheduler (List<Account> newAccounts) {
         this.newEvents = new List<Event>();
         this.repository = new EventRepository();
+        this.dateCalculator = new BusinessHoursCalculator();
 
         this.newAccounts = newAccounts;
         prepareEventFromAccount(newAccounts);
@@ -38,17 +41,19 @@ public virtual class EventPresentationScheduler {
     }
 
     public Event completeEventWithAccountInformation(Event event, Account account) {        
-        DateTime eventCreateDate = account.CreatedDate;
+        Datetime eventCreateDate = account.CreatedDate;
 
-        event.StartDateTime = eventCreateDate.addDays(1);
-        event.EndDateTime = eventCreateDate.addDays(1).addHours(1);
+        Datetime nextBusinessHour = dateCalculator.getNextBusinessHour(eventDateTime);
+
+        event.StartDateTime = nextBusinessHour;
+        event.EndDateTime = nextBusinessHour.addHours(1);
 
         event.WhatId = account.Id;
 
         return event;
     }
 
-    public void createEvents(){
+    public void createEvents() {
         repository.create(this.newEvents);
     }
 }
