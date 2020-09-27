@@ -3,9 +3,11 @@
  */
 public class ProjectEnricher {
 
-    public List<Project__c> enrichProjectLegacySystem(List<Project__c> projects) {
-        
-        return projects;
-    }
+    ProjectUpdateIntegrationStatus updateIntegration;
 
+    public List<Project__c> enrichProjectLegacySystem(List<Project__c> projects) {
+        updateIntegration = new ProjectUpdateIntegrationStatus();
+
+        return updateIntegration.updateIntegrationStatus(projects);
+    }
 }
