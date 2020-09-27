@@ -1,3 +1,6 @@
+/**
+ * @author mateus-os 
+ */
 public class ProjectLegacySystem {
     public String name;
     public String code;
