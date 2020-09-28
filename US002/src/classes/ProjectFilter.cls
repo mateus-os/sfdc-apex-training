@@ -8,7 +8,11 @@ public class ProjectFilter {
         
         List<Project__c> filteredProjects = new List<Project__c>();
 
-        for (Project__c project : newProjects) {
+        if(oldProjects == null || oldProjects.isEmpty()){
+            return filteredProjects;
+        }
+
+        for (Project__c project : newProjects) {            
             if (project.Status__c == oldProjects.get(project.Id).Status__c) {
                 continue;
             }
