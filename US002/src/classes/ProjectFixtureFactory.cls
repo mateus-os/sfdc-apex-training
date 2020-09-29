@@ -32,6 +32,10 @@ public class ProjectFixtureFactory {
                                         'Enterprise', Date.today(), Date.today().addMonths(6), 400000);
         records.put ('newProject', project);
 
+        project = createProject('TopiRun US002', '27092020', 'Iniciado',
+                                        'Enterprise', Date.today(), Date.today().addMonths(6), 400000);
+        records.put ('initiatedProject', project);
+
         return records;
     }
 }

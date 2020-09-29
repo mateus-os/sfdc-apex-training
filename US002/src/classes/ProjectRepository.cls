@@ -11,7 +11,7 @@ public virtual class ProjectRepository {
 
     virtual
     public List<Project__c> modify (List<Project__c> projects) {
-        insert projects;
+        update projects;
         return projects;
     }
 }

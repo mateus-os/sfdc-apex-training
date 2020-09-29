@@ -9,6 +9,8 @@ public virtual class ProjectTH extends TriggerHandler {
 
     ProjectFilter filter;
 
+    ProjectPublish publisher;
+
     ProjectEnricher enricher;
 
     public ProjectTH() {
@@ -20,6 +22,7 @@ public virtual class ProjectTH extends TriggerHandler {
         this.oldProjects = oldProjects;
 
         this.filter = new ProjectFilter();
+        this.publisher = new ProjectPublish();
         this.enricher = new ProjectEnricher();    
     }
 
@@ -33,7 +36,8 @@ public virtual class ProjectTH extends TriggerHandler {
     public void enrichIfTypeEntrepriseAndStatusInitiated() {
         List<Project__c> filteredProjects = this.filter.filterByTypeEntrepriseAndStatusInitiated(newProjects, oldProjects);
 
-        this.enricher.enrichProjectLegacySystem(filteredProjects);
-    }
+        List<Project__c> publishedProjects = this.publisher.publishProjectLegacySystem(filteredProjects);
 
+        this.enricher.enrichProjectLegacySystem(publishedProjects);
+    }
 }

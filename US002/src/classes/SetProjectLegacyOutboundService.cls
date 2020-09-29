@@ -5,28 +5,31 @@ public class SetProjectLegacyOutboundService {
 
     ProjectTransformer transformer;
 
-    Project__c updatedProject;
-
-    String endpointUrl;
+    public static List<Project__c> projectsWithIntegrationStatus;
 
     public SetProjectLegacyOutboundService(){
         transformer = new ProjectTransformer();
-        endpointUrl = 'https://run.mocky.io/v3/b00daac0-de5d-4dd2-a7d0-ce9610aabb45';
+        projectsWithIntegrationStatus = new List<Project__c>();
     }
 
-    public Project__c sendProjectToLegacySystem(Project__c project){
-        updatedProject = project;
-        return sendToLegacySystemService(transformer.toProjectLegacy(project));
+    public void sendProjectToLegacySystem(List<Project__c> projects){
+        ProjectLegacySystem projectLegacy = new ProjectLegacySystem();
+
+        for (Project__c project : projects) {
+            projectLegacy = transformer.toProjectLegacy(project);
+            sendToLegacySystemService(JSON.serialize(projectLegacy), projectLegacy.code);
+        }
     }
 
-    private Project__c sendToLegacySystemService(ProjectLegacySystem projectLegacy) {
+    @future (callout=true)
+    public static void sendToLegacySystemService(String body, String id) {
         HttpRequest request = new HttpRequest();
 
         // request.setEndpoint('https://run.mocky.io/v3/e61d7a35-d227-49e5-b5e5-7e0e2fdcee2d'); response broken
-        
-        request.setEndpoint(endpointUrl);
+
+        request.setEndpoint('https://run.mocky.io/v3/b00daac0-de5d-4dd2-a7d0-ce9610aabb45');
         request.setMethod('PUT');
-        request.setBody(JSON.serialize(projectLegacy));
+        request.setBody(body);
         request.setHeader('Content-Type', 'application/json');
 
         Http http = new Http();
@@ -35,21 +38,33 @@ public class SetProjectLegacyOutboundService {
         String payload = response.getBody();
 
         ProjectLegacySystem responseProjectLegacy = (ProjectLegacySystem) JSON.deserialize( payload , ProjectLegacySystem.class );
+        responseProjectLegacy.code = id;
 
-        if (response.getStatusCode() != 200) {
-            updatedProject.SynchronizationStatus__c = 'Erro na sincronização de projetos';
-            updatedProject.ErrorMessage__c = responseProjectLegacy.errorMessage;
-
-            return updatedProject;
+        
+        if (response.getStatusCode() == 200) {
+            updateProjectWithSuccessIntegrationInformation(responseProjectLegacy);
+        } else {
+            updateProjectWithFailIntegrationInformation(responseProjectLegacy);
         }
-
-        updatedProject.LastSyncDate__c = Datetime.now();
-        updatedProject.SynchronizationStatus__c = 'Integrado com sucesso';
-
-        return updatedProject;
     }
 
-    public void setEndpointUrl(String url) {
-        this.endpointUrl = url;
+    private static void updateProjectWithSuccessIntegrationInformation(ProjectLegacySystem projectLegacy){
+        Project__c project = new Project__c();
+
+        project.Id = projectLegacy.code;    
+        project.LastSyncDate__c = Datetime.now();
+        project.SynchronizationStatus__c = 'Integrado com sucesso';
+
+        projectsWithIntegrationStatus.add(project);
+    }
+
+    private static void updateProjectWithFailIntegrationInformation(ProjectLegacySystem projectLegacy){
+        Project__c project = new Project__c();
+
+        project.Id = projectLegacy.code;
+        project.ErrorMessage__c = projectLegacy.errorMessage;
+        project.SynchronizationStatus__c = 'Erro na sincronização de projetos';
+
+        projectsWithIntegrationStatus.add(project);        
     }
 }
