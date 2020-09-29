@@ -7,7 +7,7 @@ public virtual class AccountTH extends TriggerHandler {
 
     AccountFilter filter;
 
-    AccountEnricher enricher;
+    AccountEventEnricher enricher;
 
     public AccountTH() {
         this ( (List<Account>) Trigger.new );
@@ -17,7 +17,7 @@ public virtual class AccountTH extends TriggerHandler {
         this.newAccounts = newAccounts;
 
         this.filter = new AccountFilter();
-        this.enricher = new AccountEnricher();
+        this.enricher = new AccountEventEnricher();
     }
 
     virtual

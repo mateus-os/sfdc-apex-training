@@ -1,7 +1,7 @@
 /**
  * @author mateus-os
  */
-public class AccountEnricher {
+public class AccountEventEnricher {
 
     EventPresentationScheduler eventScheduler;
 
