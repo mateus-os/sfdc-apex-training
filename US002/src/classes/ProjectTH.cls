@@ -4,14 +4,9 @@
 public virtual class ProjectTH extends TriggerHandler {
 
     List<Project__c> newProjects;
-
     Map<Id,Project__c> oldProjects;
 
     ProjectFilter filter;
-
-    ProjectPublish publisher;
-
-    ProjectEnricher enricher;
 
     public ProjectTH() {
         this ((List<Project__c>) Trigger.new, (Map<Id,Project__c>) Trigger.oldMap);
@@ -20,24 +15,20 @@ public virtual class ProjectTH extends TriggerHandler {
     public ProjectTH (List<Project__c> newProjects , Map<Id,Project__c> oldProjects) {
         this.newProjects = newProjects;
         this.oldProjects = oldProjects;
-
         this.filter = new ProjectFilter();
-        this.publisher = new ProjectPublish();
-        this.enricher = new ProjectEnricher();    
     }
 
-    virtual
     override
     public void afterUpdate() {
-        enrichIfTypeEntrepriseAndStatusInitiated();
+        sendProjectsToLegacySystem();
     }
 
     virtual
-    public void enrichIfTypeEntrepriseAndStatusInitiated() {
-        List<Project__c> filteredProjects = this.filter.filterByTypeEntrepriseAndStatusInitiated(newProjects, oldProjects);
+    public void sendProjectsToLegacySystem() {
+        List<Project__c> startedProjects = this.filter.filterByEnterpriseProjectStarted(newProjects, oldProjects);
 
-        List<Project__c> publishedProjects = this.publisher.publishProjectLegacySystem(filteredProjects);
+        if (startedProjects.isEmpty()) return;
 
-        this.enricher.enrichProjectLegacySystem(publishedProjects);
+        SendTopiProjectAsync.sendProject( this.filter.convertSObjetList(startedProjects, 'Id'));
     }
 }

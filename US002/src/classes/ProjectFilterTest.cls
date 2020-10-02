@@ -14,7 +14,7 @@ public class ProjectFilterTest {
 
         ProjectFilter filter = new ProjectFilter();
 
-        List<Project__c> filteredProjects = filter.filterByTypeEntrepriseAndStatusInitiated(projects, null);
+        List<Project__c> filteredProjects = filter.filterByEntrepriseProjectStarted(projects, null);
 
         System.assert(filteredProjects.isEmpty());
     }
@@ -39,7 +39,7 @@ public class ProjectFilterTest {
         
         ProjectFilter filter = new ProjectFilter();
 
-        List<Project__c> filteredProjects = filter.filterByTypeEntrepriseAndStatusInitiated(updatedProjects, oldProjects);
+        List<Project__c> filteredProjects = filter.filterByEntrepriseProjectStarted(updatedProjects, oldProjects);
 
         System.debug(JSON.serialize(filteredProjects));
         System.assertEquals(projects.size(), updatedProjects.size());
