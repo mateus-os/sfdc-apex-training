@@ -12,13 +12,15 @@ public class SetProjectLegacyOutboundService {
         projectsWithIntegrationStatus = new List<Project__c>();
     }
 
-    public void sendProjectToLegacySystem(List<Project__c> projects){
+    public List<Project__c> sendProjectToLegacySystem(List<Project__c> projects){
         ProjectLegacySystem projectLegacy = new ProjectLegacySystem();
 
         for (Project__c project : projects) {
             projectLegacy = transformer.toProjectLegacy(project);
             sendToLegacySystemService(JSON.serialize(projectLegacy), projectLegacy.code);
         }
+
+        return projectsWithIntegrationStatus;
     }
 
     @future (callout=true)
